@@ -3,13 +3,14 @@ cc_binary(
     srcs = [
         "main.cc",
     ],
-    tags = [
+     tags = [
         "examples",
-        "ostream",
+        "otlp",
+        "otlp_http",
     ],
     deps = [
         "//api",
         "//examples/common/foo_library:common_foo_library",
-        "//exporters/ostream:ostream_span_exporter",
+        "//exporters/otlp:otlp_http_exporter",
     ],
 )

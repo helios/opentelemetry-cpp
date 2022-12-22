@@ -1,7 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-#include "opentelemetry/exporters/ostream/span_exporter_factory.h"
+#include "opentelemetry/exporters/otlp/otlp_http_exporter_factory.h"
+#include "opentelemetry/exporters/otlp/otlp_http_exporter_options.h"
 #include "opentelemetry/sdk/trace/simple_processor_factory.h"
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"
 #include "opentelemetry/trace/provider.h"
@@ -14,14 +15,21 @@
 
 namespace trace_api      = opentelemetry::trace;
 namespace trace_sdk      = opentelemetry::sdk::trace;
-namespace trace_exporter = opentelemetry::exporter::trace;
 
 namespace
 {
+    opentelemetry::exporter::otlp::OtlpHttpExporterOptions opts;
+
 void initTracer()
 {
-  auto exporter  = trace_exporter::OStreamSpanExporterFactory::Create();
-  auto processor = trace_sdk::SimpleSpanProcessorFactory::Create(std::move(exporter));
+  opts.url = "https://collector.heliosphere.io/traces";
+  // opts.url = "http://localhost:8080/post";
+  // opts.content_type = opentelemetry::exporter::otlp::HttpRequestContentType::kBinary;
+  opts.console_debug = true;
+  opts.http_headers.insert(
+      std::make_pair<const std::string, std::string>("Authorization", "6472e5bea9ef0a90c80f"));
+  auto exporter = opentelemetry::exporter::otlp::OtlpHttpExporterFactory::Create(opts);
+  auto processor = opentelemetry::sdk::trace::SimpleSpanProcessorFactory::Create(std::move(exporter));
   std::shared_ptr<opentelemetry::trace::TracerProvider> provider =
       trace_sdk::TracerProviderFactory::Create(std::move(processor));
 
